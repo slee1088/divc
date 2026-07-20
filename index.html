@@ -3,25 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ledger</title>
+<title>Shuttle Log</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%231F5A44'/%3E%3Ccircle cx='50' cy='68' r='16' fill='%23F4F8EF'/%3E%3Cpath d='M50 52 L28 12 M50 52 L50 8 M50 52 L72 12' stroke='%23F4F8EF' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
   :root {
-    --paper: #ECEEE9;
-    --paper-raised: #F4F5F1;
-    --ink: #23302C;
-    --ink-soft: #5B675F;
-    --teal: #2F5D62;
-    --teal-dark: #23474B;
-    --clay: #B5654A;
-    --amber: #C68A2E;
-    --line: #CBD0C7;
+    --paper: #E9EFE7;
+    --paper-raised: #F4F8EF;
+    --ink: #16241C;
+    --ink-soft: #5A6B5E;
+    --court: #1F5A44;
+    --court-dark: #163F30;
+    --clay: #C0524B;
+    --shuttle: #E0C24A;
+    --line: #C7D3C4;
   }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
     background: var(--paper);
     color: var(--ink);
-    font-family: Iowan Old Style, Palatino Linotype, Georgia, serif;
+    font-family: "Arial Narrow", "Helvetica Neue Condensed", Arial, sans-serif;
     min-height: 100vh;
   }
   .mono {
@@ -37,25 +38,31 @@
   .card {
     background: var(--paper-raised);
     border: 1px solid var(--line);
-    border-left: 6px dashed var(--teal);
+    border-top: 6px solid var(--court);
     border-radius: 4px;
     padding: 36px 32px;
     width: 100%;
     max-width: 380px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    position: relative;
   }
   h1 {
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     margin: 0 0 4px 0;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    font-weight: 800;
   }
   .eyebrow {
     font-family: "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    color: var(--ink-soft);
+    color: var(--court);
     margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   label {
     display: block;
@@ -75,8 +82,8 @@
   }
   input:focus {
     outline: none;
-    border-color: var(--teal);
-    box-shadow: 0 0 0 3px rgba(47,93,98,0.15);
+    border-color: var(--court);
+    box-shadow: 0 0 0 3px rgba(31,90,68,0.15);
   }
   button {
     font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -88,13 +95,13 @@
     padding: 10px 16px;
   }
   .btn-primary {
-    background: var(--teal);
+    background: var(--court);
     color: #fff;
     width: 100%;
     margin-top: 22px;
     padding: 12px;
   }
-  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:hover { background: var(--court-dark); }
   .btn-primary:disabled { opacity: 0.5; cursor: default; }
   .error {
     color: var(--clay);
@@ -109,7 +116,7 @@
     margin-top: 18px;
     line-height: 1.5;
   }
-  .hint a { color: var(--teal); }
+  .hint a { color: var(--court); }
 
   /* ---- Table screen ---- */
   .wrap { max-width: 900px; margin: 0 auto; padding: 28px 18px 80px; }
@@ -117,13 +124,21 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 4px double var(--court);
     padding-bottom: 12px;
     margin-bottom: 22px;
     flex-wrap: wrap;
     gap: 10px;
   }
-  header.top h1 { margin: 0; }
+  header.top h1 {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
   .logout {
     background: none;
     color: var(--ink-soft);
@@ -139,10 +154,13 @@
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--ink-soft);
-    padding: 6px 8px;
-    border-bottom: 1px solid var(--line);
+    color: #fff;
+    background: var(--court);
+    padding: 8px 8px;
+    border-bottom: 2px solid var(--court-dark);
   }
+  thead th:first-child { border-radius: 3px 0 0 0; }
+  thead th:last-child { border-radius: 0 3px 0 0; }
   tbody tr { border-bottom: 1px solid var(--line); }
   tbody td { padding: 4px; vertical-align: top; }
   .rownum {
@@ -163,9 +181,14 @@
     color: var(--ink);
     border-radius: 3px;
   }
+  td input[data-field="score"] {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-weight: 700;
+    color: var(--court-dark);
+  }
   td input:focus {
     outline: none;
-    border-color: var(--teal);
+    border-color: var(--court);
     background: #fff;
   }
   .del-cell { width: 34px; }
@@ -186,7 +209,7 @@
     padding: 10px;
     font-size: 0.78rem;
   }
-  .add-row:hover { border-color: var(--teal); color: var(--teal); }
+  .add-row:hover { border-color: var(--court); color: var(--court); }
 
   .statusbar {
     position: fixed;
@@ -196,18 +219,21 @@
     font-size: 0.72rem;
   }
   .stamp {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 6px 12px;
-    border: 2px solid var(--teal);
-    color: var(--teal);
+    border: 2px solid var(--court);
+    color: var(--court);
     border-radius: 3px;
     transform: rotate(-6deg);
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    background: rgba(255,255,255,0.85);
+    font-weight: 700;
+    background: rgba(255,255,255,0.9);
     transition: opacity 0.4s ease;
   }
-  .stamp.saving { border-color: var(--amber); color: var(--amber); }
+  .stamp.saving { border-color: var(--shuttle); color: #8a6d10; }
   .stamp.error { border-color: var(--clay); color: var(--clay); }
   .stamp.hidden { opacity: 0; }
 
@@ -229,8 +255,8 @@
 <!-- LOGIN SCREEN -->
 <div class="screen" id="loginScreen">
   <div class="card">
-    <div class="eyebrow">Private Ledger</div>
-    <h1>Sign in</h1>
+    <div class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0"><circle cx="12" cy="17" r="4" fill="currentColor"/><path d="M12 13 L4 3 M12 13 L12 1 M12 13 L20 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg> Members Only</div>
+    <h1>Court Check-in</h1>
     <form id="loginForm">
       <label for="email">Email</label>
       <input type="email" id="email" required autocomplete="username">
@@ -239,15 +265,15 @@
       <button type="submit" class="btn-primary">Sign in</button>
       <div class="error" id="loginError">Incorrect email or password.</div>
     </form>
-    <div class="hint">Not a shared/public login &mdash; this is a soft lock for one person, not bank-grade security.</div>
+    <div class="hint">Singles only &mdash; this is a soft lock for one person, not bank-grade security.</div>
   </div>
 </div>
 
 <!-- TOKEN SCREEN -->
 <div class="screen" id="tokenScreen" style="display:none;">
   <div class="card">
-    <div class="eyebrow">One-time setup</div>
-    <h1>Connect storage</h1>
+    <div class="eyebrow"><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0"><circle cx="12" cy="17" r="4" fill="currentColor"/><path d="M12 13 L4 3 M12 13 L12 1 M12 13 L20 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg> One-time setup</div>
+    <h1>Set Up Courtside</h1>
     <form id="tokenForm">
       <label for="pat">GitHub token</label>
       <input type="text" id="pat" class="mono" placeholder="github_pat_..." required>
@@ -265,10 +291,10 @@
 <!-- TABLE SCREEN -->
 <div class="wrap" id="tableScreen" style="display:none;">
   <header class="top">
-    <h1>Ledger</h1>
+    <h1><svg width="14" height="14" viewBox="0 0 24 24" style="flex-shrink:0"><circle cx="12" cy="17" r="4" fill="currentColor"/><path d="M12 13 L4 3 M12 13 L12 1 M12 13 L20 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg> Shuttle Log</h1>
     <div style="display:flex; gap:8px;">
       <button class="logout" id="deviceLinkBtn">Copy device link</button>
-      <button class="logout" id="logoutBtn">Sign out</button>
+      <button class="logout" id="logoutBtn">Leave court</button>
     </div>
   </header>
   <div id="loadingMsg" class="loading">Loading…</div>
@@ -276,18 +302,18 @@
     <thead>
       <tr>
         <th class="rownum">#</th>
-        <th>Item</th>
-        <th>Value</th>
+        <th>Match</th>
+        <th>Score</th>
         <th>Notes</th>
         <th class="del-cell"></th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
   </table>
-  <button class="add-row" id="addRowBtn" style="display:none;">+ Add row</button>
+  <button class="add-row" id="addRowBtn" style="display:none;">+ Add match</button>
 </div>
 
-<div class="statusbar"><span class="stamp hidden" id="stamp">Saved</span></div>
+<div class="statusbar"><span class="stamp hidden" id="stamp">In</span></div>
 
 <script>
 /* ============ CONFIG ============
@@ -416,8 +442,8 @@ function render() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="rownum">${i + 1}</td>
-      <td><input data-i="${i}" data-field="item" value="${escapeAttr(row.item || "")}"></td>
-      <td><input data-i="${i}" data-field="value" value="${escapeAttr(row.value || "")}"></td>
+      <td><input data-i="${i}" data-field="match" value="${escapeAttr(row.match || "")}"></td>
+      <td><input data-i="${i}" data-field="score" value="${escapeAttr(row.score || "")}"></td>
       <td><input data-i="${i}" data-field="notes" value="${escapeAttr(row.notes || "")}"></td>
       <td class="del-cell"><button class="del-btn" data-i="${i}">✕</button></td>
     `;
@@ -447,7 +473,7 @@ function escapeAttr(s) {
 }
 
 $("addRowBtn").addEventListener("click", () => {
-  rows.push({ item: "", value: "", notes: "" });
+  rows.push({ match: "", score: "", notes: "" });
   render();
   // focus the new row's first input
   const inputs = $("tbody").querySelectorAll("input");
@@ -456,7 +482,7 @@ $("addRowBtn").addEventListener("click", () => {
 });
 
 function scheduleSave() {
-  showStamp("saving", "Saving…");
+  showStamp("saving", "Rally…");
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveData, 700);
 }
@@ -491,10 +517,10 @@ async function saveData(retried) {
     if (!res.ok) throw new Error("save failed: " + res.status);
     const json = await res.json();
     currentSha = json.content.sha;
-    showStamp("saved", "Saved");
+    showStamp("saved", "In");
   } catch (err) {
     console.error(err);
-    showStamp("error", "Save failed");
+    showStamp("error", "Fault");
   }
 }
 
@@ -538,7 +564,7 @@ $("deviceLinkBtn").addEventListener("click", async () => {
   const url = `${location.origin}${location.pathname}#pat=${encodeURIComponent(pat)}`;
   try {
     await navigator.clipboard.writeText(url);
-    showStamp("saved", "Link copied");
+    showStamp("saved", "Linked");
   } catch {
     prompt("Copy this link and open it on your other device:", url);
   }
