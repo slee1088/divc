@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger</title>
+<style>
+  :root {
+    --paper: #ECEEE9;
+    --paper-raised: #F4F5F1;
+    --ink: #23302C;
+    --ink-soft: #5B675F;
+    --teal: #2F5D62;
+    --teal-dark: #23474B;
+    --clay: #B5654A;
+    --amber: #C68A2E;
+    --line: #CBD0C7;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Iowan Old Style, Palatino Linotype, Georgia, serif;
+    min-height: 100vh;
+  }
+  .mono {
+    font-family: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+  }
+  .screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-left: 6px dashed var(--teal);
+    border-radius: 4px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 4px 0;
+    letter-spacing: 0.02em;
+  }
+  .eyebrow {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+  }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin: 14px 0 5px;
+  }
+  input[type="email"], input[type="password"], input[type="text"] {
+    width: 100%;
+    padding: 10px 11px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: #fff;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(47,93,98,0.15);
+  }
+  button {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    padding: 10px 16px;
+  }
+  .btn-primary {
+    background: var(--teal);
+    color: #fff;
+    width: 100%;
+    margin-top: 22px;
+    padding: 12px;
+  }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { opacity: 0.5; cursor: default; }
+  .error {
+    color: var(--clay);
+    font-size: 0.82rem;
+    margin-top: 12px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    display: none;
+  }
+  .hint {
+    font-size: 0.76rem;
+    color: var(--ink-soft);
+    margin-top: 18px;
+    line-height: 1.5;
+  }
+  .hint a { color: var(--teal); }
+
+  /* ---- Table screen ---- */
+  .wrap { max-width: 900px; margin: 0 auto; padding: 28px 18px 80px; }
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 12px;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header.top h1 { margin: 0; }
+  .logout {
+    background: none;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    font-size: 0.72rem;
+  }
+  .logout:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  tbody tr { border-bottom: 1px solid var(--line); }
+  tbody td { padding: 4px; vertical-align: top; }
+  .rownum {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    color: var(--ink-soft);
+    font-size: 0.75rem;
+    text-align: right;
+    padding-right: 10px;
+    width: 28px;
+  }
+  td input {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 8px 6px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--ink);
+    border-radius: 3px;
+  }
+  td input:focus {
+    outline: none;
+    border-color: var(--teal);
+    background: #fff;
+  }
+  .del-cell { width: 34px; }
+  .del-btn {
+    background: none;
+    color: var(--ink-soft);
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+  .del-btn:hover { color: var(--clay); }
+
+  .add-row {
+    margin-top: 14px;
+    background: none;
+    border: 1px dashed var(--line);
+    color: var(--ink-soft);
+    width: 100%;
+    padding: 10px;
+    font-size: 0.78rem;
+  }
+  .add-row:hover { border-color: var(--teal); color: var(--teal); }
+
+  .statusbar {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+  }
+  .stamp {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 2px solid var(--teal);
+    color: var(--teal);
+    border-radius: 3px;
+    transform: rotate(-6deg);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.85);
+    transition: opacity 0.4s ease;
+  }
+  .stamp.saving { border-color: var(--amber); color: var(--amber); }
+  .stamp.error { border-color: var(--clay); color: var(--clay); }
+  .stamp.hidden { opacity: 0; }
+
+  .loading, .empty {
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    padding: 30px 4px;
+    text-align: center;
+  }
+
+  @media (max-width: 560px) {
+    .card { padding: 28px 22px; }
+    thead th:nth-child(4), td:nth-child(4) { display: none; } /* hide notes col on very small screens */
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="screen" id="loginScreen">
+  <div class="card">
+    <div class="eyebrow">Private Ledger</div>
+    <h1>Sign in</h1>
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input type="email" id="email" required autocomplete="username">
+      <label for="password">Password</label>
+      <input type="password" id="password" required autocomplete="current-password">
+      <button type="submit" class="btn-primary">Sign in</button>
+      <div class="error" id="loginError">Incorrect email or password.</div>
+    </form>
+    <div class="hint">Not a shared/public login &mdash; this is a soft lock for one person, not bank-grade security.</div>
+  </div>
+</div>
+
+<!-- TOKEN SCREEN -->
+<div class="screen" id="tokenScreen" style="display:none;">
+  <div class="card">
+    <div class="eyebrow">One-time setup</div>
+    <h1>Connect storage</h1>
+    <form id="tokenForm">
+      <label for="pat">GitHub token</label>
+      <input type="text" id="pat" class="mono" placeholder="github_pat_..." required>
+      <button type="submit" class="btn-primary">Connect</button>
+      <div class="error" id="tokenError">Couldn't reach the repo with that token.</div>
+    </form>
+    <div class="hint">
+      Paste a fine-grained token scoped only to this repo (Contents: Read and write).
+      It's saved in this browser's local storage only &mdash; never in the site's source.
+      See the README for how to create one.
+    </div>
+  </div>
+</div>
+
+<!-- TABLE SCREEN -->
+<div class="wrap" id="tableScreen" style="display:none;">
+  <header class="top">
+    <h1>Ledger</h1>
+    <div style="display:flex; gap:8px;">
+      <button class="logout" id="deviceLinkBtn">Copy device link</button>
+      <button class="logout" id="logoutBtn">Sign out</button>
+    </div>
+  </header>
+  <div id="loadingMsg" class="loading">Loading…</div>
+  <table id="dataTable" style="display:none;">
+    <thead>
+      <tr>
+        <th class="rownum">#</th>
+        <th>Item</th>
+        <th>Value</th>
+        <th>Notes</th>
+        <th class="del-cell"></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <button class="add-row" id="addRowBtn" style="display:none;">+ Add row</button>
+</div>
+
+<div class="statusbar"><span class="stamp hidden" id="stamp">Saved</span></div>
+
+<script>
+/* ============ CONFIG ============
+   Fill these in before publishing. See README.md.
+*/
+const CONFIG = {
+  owner: "YOUR_GITHUB_USERNAME",
+  repo: "YOUR_REPO_NAME",
+  path: "data.json",
+  branch: "main",
+  // SHA-256 hex hash of "email:password" — generate via the snippet in README.md
+  credentialHash: "PASTE_YOUR_HASH_HERE"
+};
+/* ================================= */
+
+const $ = (id) => document.getElementById(id);
+
+async function sha256Hex(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function b64EncodeUnicode(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64DecodeUnicode(str) {
+  return decodeURIComponent(escape(atob(str)));
+}
+
+function showScreen(id) {
+  ["loginScreen", "tokenScreen", "tableScreen"].forEach(s => {
+    $(s).style.display = (s === id) ? (s === "tableScreen" ? "block" : "flex") : "none";
+  });
+}
+
+// ---------- Login ----------
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = $("email").value.trim().toLowerCase();
+  const pw = $("password").value;
+  const hash = await sha256Hex(`${email}:${pw}`);
+  if (hash === CONFIG.credentialHash) {
+    sessionStorage.setItem("ledger_logged_in", "1");
+    $("loginError").style.display = "none";
+    afterLogin();
+  } else {
+    $("loginError").style.display = "block";
+  }
+});
+
+function afterLogin() {
+  const pat = localStorage.getItem("ledger_gh_pat");
+  if (pat) {
+    showScreen("tableScreen");
+    loadData();
+  } else {
+    showScreen("tokenScreen");
+  }
+}
+
+// ---------- Token connect ----------
+$("tokenForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const pat = $("pat").value.trim();
+  const ok = await testToken(pat);
+  if (ok) {
+    localStorage.setItem("ledger_gh_pat", pat);
+    $("tokenError").style.display = "none";
+    showScreen("tableScreen");
+    loadData();
+  } else {
+    $("tokenError").style.display = "block";
+  }
+});
+
+async function testToken(pat) {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}`, {
+      headers: { Authorization: `Bearer ${pat}`, Accept: "application/vnd.github+json" }
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+// ---------- Logout ----------
+$("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem("ledger_logged_in");
+  showScreen("loginScreen");
+});
+
+// ---------- Data load/save ----------
+let rows = [];
+let currentSha = null;
+let saveTimer = null;
+
+async function loadData() {
+  $("loadingMsg").style.display = "block";
+  $("dataTable").style.display = "none";
+  $("addRowBtn").style.display = "none";
+  const pat = localStorage.getItem("ledger_gh_pat");
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}?ref=${CONFIG.branch}`,
+      { headers: { Authorization: `Bearer ${pat}`, Accept: "application/vnd.github+json" } }
+    );
+    if (!res.ok) throw new Error("fetch failed: " + res.status);
+    const json = await res.json();
+    currentSha = json.sha;
+    const content = b64DecodeUnicode(json.content.replace(/\n/g, ""));
+    rows = JSON.parse(content || "[]");
+  } catch (err) {
+    console.error(err);
+    rows = [];
+    currentSha = null;
+  }
+  render();
+  $("loadingMsg").style.display = "none";
+  $("dataTable").style.display = "table";
+  $("addRowBtn").style.display = "block";
+}
+
+function render() {
+  const tbody = $("tbody");
+  tbody.innerHTML = "";
+  rows.forEach((row, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="rownum">${i + 1}</td>
+      <td><input data-i="${i}" data-field="item" value="${escapeAttr(row.item || "")}"></td>
+      <td><input data-i="${i}" data-field="value" value="${escapeAttr(row.value || "")}"></td>
+      <td><input data-i="${i}" data-field="notes" value="${escapeAttr(row.notes || "")}"></td>
+      <td class="del-cell"><button class="del-btn" data-i="${i}">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("input", (e) => {
+      const i = +e.target.dataset.i;
+      const field = e.target.dataset.field;
+      rows[i][field] = e.target.value;
+      scheduleSave();
+    });
+  });
+  tbody.querySelectorAll(".del-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const i = +e.target.dataset.i;
+      rows.splice(i, 1);
+      render();
+      scheduleSave();
+    });
+  });
+}
+
+function escapeAttr(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+}
+
+$("addRowBtn").addEventListener("click", () => {
+  rows.push({ item: "", value: "", notes: "" });
+  render();
+  // focus the new row's first input
+  const inputs = $("tbody").querySelectorAll("input");
+  if (inputs.length) inputs[inputs.length - 3].focus();
+  scheduleSave();
+});
+
+function scheduleSave() {
+  showStamp("saving", "Saving…");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveData, 700);
+}
+
+async function saveData(retried) {
+  const pat = localStorage.getItem("ledger_gh_pat");
+  const body = {
+    message: `Update ledger — ${new Date().toISOString()}`,
+    content: b64EncodeUnicode(JSON.stringify(rows, null, 2)),
+    branch: CONFIG.branch
+  };
+  if (currentSha) body.sha = currentSha;
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${pat}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      }
+    );
+    if (res.status === 409 && !retried) {
+      // sha changed elsewhere — refetch and retry once
+      await refreshSha();
+      return saveData(true);
+    }
+    if (!res.ok) throw new Error("save failed: " + res.status);
+    const json = await res.json();
+    currentSha = json.content.sha;
+    showStamp("saved", "Saved");
+  } catch (err) {
+    console.error(err);
+    showStamp("error", "Save failed");
+  }
+}
+
+async function refreshSha() {
+  const pat = localStorage.getItem("ledger_gh_pat");
+  const res = await fetch(
+    `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}?ref=${CONFIG.branch}`,
+    { headers: { Authorization: `Bearer ${pat}`, Accept: "application/vnd.github+json" } }
+  );
+  if (res.ok) {
+    const json = await res.json();
+    currentSha = json.sha;
+  }
+}
+
+let stampTimer = null;
+function showStamp(kind, text) {
+  const el = $("stamp");
+  el.textContent = text;
+  el.className = `stamp ${kind === "saving" ? "saving" : kind === "error" ? "error" : ""}`;
+  clearTimeout(stampTimer);
+  if (kind !== "saving") {
+    stampTimer = setTimeout(() => el.classList.add("hidden"), 1800);
+  }
+}
+
+// ---------- Device link (token travels in URL fragment, never sent to any server) ----------
+function consumeDeviceLinkToken() {
+  const hash = location.hash;
+  if (hash && hash.startsWith("#pat=")) {
+    const pat = decodeURIComponent(hash.slice(5));
+    localStorage.setItem("ledger_gh_pat", pat);
+    // strip it from the URL/history immediately so it doesn't linger anywhere
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+}
+
+$("deviceLinkBtn").addEventListener("click", async () => {
+  const pat = localStorage.getItem("ledger_gh_pat");
+  if (!pat) return;
+  const url = `${location.origin}${location.pathname}#pat=${encodeURIComponent(pat)}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    showStamp("saved", "Link copied");
+  } catch {
+    prompt("Copy this link and open it on your other device:", url);
+  }
+});
+
+// ---------- Boot ----------
+consumeDeviceLinkToken();
+if (sessionStorage.getItem("ledger_logged_in") === "1") {
+  afterLogin();
+} else {
+  showScreen("loginScreen");
+}
+</script>
+</body>
+</html>
