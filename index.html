@@ -356,7 +356,7 @@ $("loginForm").addEventListener("submit", async (e) => {
   const pw = $("password").value;
   const hash = await sha256Hex(`${email}:${pw}`);
   if (hash === CONFIG.credentialHash) {
-    sessionStorage.setItem("ledger_logged_in", "1");
+    localStorage.setItem("ledger_logged_in", "1");
     $("loginError").style.display = "none";
     afterLogin();
   } else {
@@ -400,7 +400,7 @@ async function testToken(pat) {
 
 // ---------- Logout ----------
 $("logoutBtn").addEventListener("click", () => {
-  sessionStorage.removeItem("ledger_logged_in");
+  localStorage.removeItem("ledger_logged_in");
   showScreen("loginScreen");
 });
 
@@ -572,7 +572,7 @@ $("deviceLinkBtn").addEventListener("click", async () => {
 
 // ---------- Boot ----------
 consumeDeviceLinkToken();
-if (sessionStorage.getItem("ledger_logged_in") === "1") {
+if (localStorage.getItem("ledger_logged_in") === "1") {
   afterLogin();
 } else {
   showScreen("loginScreen");
