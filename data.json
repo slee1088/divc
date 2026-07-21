@@ -8,5 +8,10 @@
     "match": "Tony is a pickle",
     "score": "11-0",
     "notes": ""
+  },
+  {
+    "match": "",
+    "score": "",
+    "notes": ""
   }
 ]
